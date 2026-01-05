@@ -28,41 +28,39 @@
         <ul class="space-y-2 text-sm">
             @foreach($messages as $message)
                 <li id="message-{{ $message->id }}"
-                    class="p-2 rounded-lg animate__animated"
-                    wire:key="message-{{ $message->id }}-{{ $loop->index }}">
-
-
-                    <div class="relative inline-block parent_of_back_icon">
-                        <img width="30px" class="rounded-2xl inline-block"
-                             src="{{$message->user->profile_image_path}}" alt="">
-                        <button class="inline-block middle back_icon mr-1" style="color: red"
-                                onclick="hideMessage({{ $message->id }})"
-                                wire:click="delete_message({{$message->id}})">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="feather feather-trash-2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                <line x1="14" y1="11" x2="14" y2="17"></line>
-                            </svg>
-                        </button>
-                    </div>
+                    class="p-2 rounded-lg">
 
                     <div class="inline-block">
+                        <img width="30px" class="rounded-2xl inline-block"
+                             src="{{$message->user->profile_image_path}}" alt="">
                         <p class="inline-block text-lg m-1 cursor-pointer"
-                           onclick="copyText(this)">{{ $message->code }}</p>
+                           onclick="copyText(this)">
+                            {{ $message->code }}
+                        </p>
 
-                        @foreach(['a','k','h','x','L', 'g'] as $c)
+                        {{-- 🔴 فقط این قسمت تغییر کرده --}}
+                        @foreach(['a','k','h','x','L','g'] as $c)
+                            @php $key = $message->id . ':' . $c; @endphp
+
                             <button
-                                wire:click="code_answer('{{ $c }}', {{ $message->id }})"
-                                class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition">
+                                onclick="handleCodeClick(event,'{{ $c }}',{{ $message->id }})"
+                                class="px-3 py-1 rounded transition
+                                {{ in_array($key,$selectedCodes)
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                                 {{ $c }}
                             </button>
                         @endforeach
                     </div>
+
+                    {{-- دکمه ثبت انتخاب‌ها --}}
+                    @if(collect($selectedCodes)->contains(fn($v)=>str_starts_with($v,$message->id.':')))
+                        <button
+                            wire:click="submitSelectedCodes({{ $message->id }})"
+                            class="mt-2 w-full bg-green-700 text-white py-1 rounded-xl">
+                            ثبت انتخاب‌ها
+                        </button>
+                    @endif
 
                     <div class="bg-white mt-3 rounded-lg h-10 relative overflow-hidden">
                         <input type="text"
@@ -72,7 +70,6 @@
                                wire:keydown.enter="submit_answer({{ $message->id }})">
 
                         <button
-                            onclick="hideMessage({{ $message->id }})"
                             wire:click="submit_answer({{ $message->id }})"
                             class="absolute right-0 top-0 h-full px-4 bg-blue-600 text-white">
                             ➤
@@ -83,7 +80,7 @@
         </ul>
     </div>
 
-    {{-- Waiting Review --}}
+
     <div class="bg-gray-200 rounded-2xl float-left m-2 w-[24%] max-h-[800px] overflow-auto">
         <div class="bg-blue-600 text-white p-4 rounded-t-2xl font-bold text-center sticky top-0">
             منتظر بررسی
@@ -166,30 +163,30 @@
                                 </span>
                             @elseif($answer->price === 'n')
                                 @if($user->id == $answer->user_id)
-                                <button
-                                    wire:click="check_answer({{$answer->message->id }})"
-                                    class="px-4 py-2 rounded-xl float-right bg-blue-600 text-white cursor-pointer z-10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                </button>
+                                    <button
+                                        wire:click="check_answer({{$answer->message->id }})"
+                                        class="px-4 py-2 rounded-xl float-right bg-blue-600 text-white cursor-pointer z-10">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </button>
                                 @endif
                                 <span class="px-3 py-2 rounded-xl float-right mx-1 bg-red-600 text-white">
                                     خوب نیست
                                 </span>
                             @elseif($answer->price === 'L')
                                 @if($user->id == $answer->user_id)
-                                <button
-                                    wire:click="check_answer({{$answer->message->id }})"
-                                    class="px-4 py-2 rounded-xl float-right bg-blue-600 text-white cursor-pointer z-10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                </button>
+                                    <button
+                                        wire:click="check_answer({{$answer->message->id }})"
+                                        class="px-4 py-2 rounded-xl float-right bg-blue-600 text-white cursor-pointer z-10">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </button>
                                 @endif
                                 <span class="px-3 text-xs py-2 rounded-xl float-right mx-1 bg-green-500 text-white">
                                     آخرین قیمت سیستم رو بدید
@@ -296,6 +293,22 @@
     </form>
 
     <script>
+        function handleCodeClick(event, code, messageId) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+                Livewire.dispatch('toggleCode', {
+                    code: code,
+                    messageId: messageId
+                });
+            } else {
+                Livewire.dispatch('codeAnswerDirect', {
+                    chat_code: code,
+                    id: messageId
+                });
+            }
+        }
+
+
         const chatBox = document.getElementById("chat-box");
         const chatBody = document.getElementById("chat-body");
         const input = document.getElementById("messageInput");
@@ -343,6 +356,7 @@
                     console.error("خطا در کپی:", err);
                 });
         }
+
     </script>
 
 </div>

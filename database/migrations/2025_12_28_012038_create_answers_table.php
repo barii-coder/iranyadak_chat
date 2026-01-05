@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('message_id');
             $table->string('price');
+            $table->string('comment')->nullable()->after('price');
             $table->unsignedBigInteger('respondent_id')->nullable();
             $table->string('respondent_profile_image_path')->nullable();
             $table->string('respondent_name')->nullable();
