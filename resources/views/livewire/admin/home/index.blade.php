@@ -30,30 +30,60 @@
                 <li id="message-{{ $message->id }}"
                     class="p-2 rounded-lg">
 
-                    <div class="inline-block">
+                    <div class="relative inline-block parent_of_back_icon">
                         <img width="30px" class="rounded-2xl inline-block"
                              src="{{$message->user->profile_image_path}}" alt="">
+                        <button class="inline-block middle back_icon mr-1" style="color: red"
+                                onclick="hideMessage({{ $message->id }})"
+                                wire:click="delete_message({{$message->id}})">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-trash-2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="inline-block">
                         <p class="inline-block text-lg m-1 cursor-pointer"
                            onclick="copyText(this)">
                             {{ $message->code }}
                         </p>
 
-                        {{-- 🔴 فقط این قسمت تغییر کرده --}}
                         @foreach(['a','k','h','x','L','g'] as $c)
                             @php $key = $message->id . ':' . $c; @endphp
 
                             <button
                                 onclick="handleCodeClick(event,'{{ $c }}',{{ $message->id }})"
                                 class="px-3 py-1 rounded transition
-                                {{ in_array($key,$selectedCodes)
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700' }}">
+        {{ in_array($key,$selectedCodes)
+            ? 'bg-green-600 text-white'
+            : 'bg-blue-600 text-white hover:bg-blue-700' }}">
                                 {{ $c }}
                             </button>
                         @endforeach
+
+                        {{-- 🔹 Input کامنت کنار دکمه‌ها --}}
+                        <div class="mt-2 flex gap-2">
+                            <input type="text"
+                                   class="flex-1 px-2 py-1 border rounded-lg"
+                                   placeholder="کامنت"
+                                   wire:model.defer="comments.{{ $message->id }}"
+                                   wire:keydown.enter="codeAnswerWithComment('{{ $prices[$message->id] ?? '' }}', {{ $message->id }})"
+                            >
+                            <button class="px-4 py-1 bg-green-600 text-white rounded-lg"
+                                    wire:click="codeAnswerWithComment('{{ $prices[$message->id] ?? '' }}', {{ $message->id }})">
+                                ثبت
+                            </button>
+                        </div>
+
                     </div>
 
-                    {{-- دکمه ثبت انتخاب‌ها --}}
                     @if(collect($selectedCodes)->contains(fn($v)=>str_starts_with($v,$message->id.':')))
                         <button
                             wire:click="submitSelectedCodes({{ $message->id }})"
@@ -108,6 +138,11 @@
                         <p onclick="copyText(this)" class="p-0 inline-block text-center">
                         {{ $answer->message->code }}
                         </p>
+                        @if($answer->comment)
+                            <span class="inline-block ml-2 px-2 py-1 bg-gray-200 text-gray-800 rounded-lg text-sm">
+        {{ $answer->comment }}
+    </span>
+                        @endif
                     </span>
 
                     @if($answer->price == 'x' or $answer->price == 'L')
