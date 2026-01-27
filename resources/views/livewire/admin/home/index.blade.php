@@ -1,4 +1,4 @@
-<div class="w-full" style="margin:10px">
+<div class="w-full" style="margin: 0 10px">
     <div style="width: 1px;height: 1px;background: #f00"></div>
 
     {{-- Error --}}
@@ -149,56 +149,37 @@
             منتظر بررسی
         </div>
 
-        <ul class="text-sm">
+        <ul class="text-sm p-1">
 
             @foreach($answersGrouped as $groupId => $groupAnswers)
-                <li class=" rounded-2xl shadow-sm border border-slate-700">
+                <li class=" rounded-2xl shadow-sm m-1 border border-slate-700">
 
                 @php
                     $firstAnswer = $groupAnswers->first();
                 @endphp
 
-                <li class="bg-gray-100 m-1 rounded-2xl p-1 shadow-sm border border-slate-700">
+                <li class="bg-gray-100 rounded-2xl p-1 w-[100%] shadow-sm border border-slate-700 float-right">
 
-                    {{-- هدر گروه --}}
-                    <div
-                        class="flex items-center justify-between bg-white-600  text-white rounded-xl mb-3 sticky top-0">
-
-                        {{--                        @if($user->id == $firstAnswer->message->user_id && $firstAnswer->message->active_group == 0)--}}
-                        {{--                            <button--}}
-                        {{--                                onclick="hideMessage({{ $firstAnswer->message->id }})"--}}
-                        {{--                                wire:click="checkAll('{{ $groupId }}')"--}}
-                        {{--                                class="p-2 rounded-full hover:bg-red-500/20 transition"--}}
-                        {{--                                title="تایید کل">--}}
-                        {{--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"--}}
-                        {{--                                     fill="none" stroke="black" stroke-width="3" stroke-linecap="round"--}}
-                        {{--                                     stroke-linejoin="round">--}}
-                        {{--                                    <path d="M20 6L9 17l-5-5"/>--}}
-                        {{--                                </svg>--}}
-                        {{--                            </button>--}}
-                        {{--                        @endif--}}
-                        @if(
-    $user->id == $firstAnswer->message->user_id &&
-    ($groupReadyForCheck[$groupId] ?? false)
-)
-                            <button
-                                onclick="hideMessage({{ $firstAnswer->message->id }})"
-                                wire:click="checkAll('{{ $groupId }}')"
-                                class="p-2 rounded-full hover:bg-red-500/20 transition"
-                                title="تایید کل">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                     viewBox="0 0 24 24"
-                                     fill="none" stroke="black" stroke-width="3"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 6L9 17l-5-5"/>
-                                </svg>
-                            </button>
-                        @endif
-
-                    </div>
                     <ul class="">
 
-                        <div class="inline">
+                        <div class="inline-block">
+                            @if(
+$user->id == $firstAnswer->message->user_id &&
+($groupReadyForCheck[$groupId] ?? false)
+)
+                                <button
+                                    onclick="hideMessage({{ $firstAnswer->message->id }})"
+                                    wire:click="checkAll('{{ $groupId }}')"
+                                    class="p-2 rounded-full hover:bg-red-500/20 transition"
+                                    title="تایید کل">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                         viewBox="0 0 24 24"
+                                         fill="none" stroke="black" stroke-width="3"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                </button>
+                            @endif
                             <img
                                 src="{{ $firstAnswer->message->user->profile_image_path }}"
                                 class="w-8 h-8 rounded-xl ring-2 ring-white shadow block"
@@ -216,7 +197,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <div class="inline-block w-[90%]">
+                        <div class="float-right w-[90%]">
                             @foreach($groupAnswers as $answer)
                                 <li
                                     class="rounded-xl hover:bg-slate-100 transition-all duration-200 p-1"
