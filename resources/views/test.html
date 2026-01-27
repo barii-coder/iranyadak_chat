@@ -1,110 +1,14 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>پنل مدیریت چت</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: Vazirmatn, sans-serif; }
-    </style>
-</head>
+<button id="instantTestBtn">نوتیف تست فوری</button>
 
-<body class="bg-gray-100 p-6">
+<script>
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
 
-<!-- Header -->
-<div class="mb-6 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-gray-700">پنل پیام‌های ادمین‌ها</h1>
-    <div class="flex gap-3">
-        <button class="bg-white p-2 rounded-xl shadow">📩</button>
-        <button class="bg-white p-2 rounded-xl shadow">👤</button>
-    </div>
-</div>
-
-<!-- Columns -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 overflow-x-auto">
-
-    <!-- Column 1 -->
-    <div class="bg-white rounded-2xl shadow">
-        <div class="bg-blue-600 text-white p-4 rounded-t-2xl font-bold text-center">
-            چت‌های در جریان
-        </div>
-
-        <div class="p-4 space-y-4">
-            <div class="flex gap-3 items-start">
-                <img src="https://i.pravatar.cc/40?img=1" class="rounded-full">
-                <div class="flex-1">
-                    <div class="font-bold text-sm">مسفان</div>
-                    <p class="text-xs text-gray-500">در حال بررسی درخواست...</p>
-                    <span class="text-[10px] text-gray-400">۱۰ دقیقه پیش</span>
-                </div>
-            </div>
-
-            <div class="flex gap-3 items-start">
-                <img src="https://i.pravatar.cc/40?img=2" class="rounded-full">
-                <div class="flex-1">
-                    <div class="font-bold text-sm">مینا احمدی</div>
-                    <p class="text-xs text-gray-500">منتظر پاسخ شما هستم</p>
-                    <span class="text-[10px] text-gray-400">۳۰ دقیقه پیش</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Column 2 -->
-    <div class="bg-white rounded-2xl shadow">
-        <div class="bg-orange-500 text-white p-4 rounded-t-2xl font-bold text-center">
-            منتظر بررسی
-        </div>
-
-        <div class="p-4 space-y-4">
-            <div class="flex gap-3 items-start">
-                <img src="https://i.pravatar.cc/40?img=3" class="rounded-full">
-                <div class="flex-1">
-                    <div class="font-bold text-sm">نامان کرمی</div>
-                    <p class="text-xs text-gray-500">ارسال مدارک تکمیل شد</p>
-                    <span class="text-[10px] text-gray-400">۱ ساعت پیش</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Column 3 -->
-    <div class="bg-white rounded-2xl shadow">
-        <div class="bg-green-600 text-white p-4 rounded-t-2xl font-bold text-center">
-            منتظر قیمت
-        </div>
-
-        <div class="p-4 space-y-4">
-            <div class="flex gap-3 items-start">
-                <img src="https://i.pravatar.cc/40?img=4" class="rounded-full">
-                <div class="flex-1">
-                    <div class="font-bold text-sm">ثارش مسعودی</div>
-                    <p class="text-xs text-gray-500">قیمت نهایی مشخص نیست</p>
-                    <span class="text-[10px] text-gray-400">دیروز</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Column 4 -->
-    <div class="bg-white rounded-2xl shadow">
-        <div class="bg-purple-600 text-white p-4 rounded-t-2xl font-bold text-center">
-            تکمیل شده
-        </div>
-
-        <div class="p-4 space-y-4">
-            <div class="flex gap-3 items-start">
-                <img src="https://i.pravatar.cc/40?img=5" class="rounded-full">
-                <div class="flex-1">
-                    <div class="font-bold text-sm">تماس و هماهنگی</div>
-                    <p class="text-xs text-gray-500">با موفقیت انجام شد</p>
-                    <span class="text-[10px] text-gray-400">۲ روز پیش</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-</body>
-</html>
+    document.getElementById("instantTestBtn").addEventListener("click", () => {
+        new Notification("پیام فوری!", {
+            body: "این نوتیف مستقیماً از JS اومد، بدون تأخیر!",
+            icon: "https://cdn-icons-png.flaticon.com/512/1828/1828817.png",
+        });
+    });
+</script>

@@ -9,18 +9,18 @@ class UserChats extends Component
 {
     public function render()
     {
-        // گرفتن آخرین 200 پیام و مرتب کردن از قدیم به جدید
+        // گرفتن پیام‌ها
         $messages = Message::with('user')
             ->latest()
             ->take(200)
             ->get()
             ->reverse()
-            ->values();
+            ->values(); // ریست index
 
-        // تشخیص پیام‌های گروهی (group_id تکراری)
+        // تشخیص پیام‌های گروهی (unique_id تکراری)
         $groupedIds = $messages
             ->groupBy('group_id')
-            ->filter(fn($group) => $group->count() > 1)
+            ->filter(fn ($group) => $group->count() > 1)
             ->keys()
             ->toArray();
 

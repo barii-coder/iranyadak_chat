@@ -9,6 +9,7 @@ Route::get('/', Index::class)->name('home');
 Route::get('/submit', \App\Livewire\Admin\Support\Index::class);
 // Login
 Route::get('/login', fn() => view('login'))->name('login');
+Route::get('/view-user-chats',\App\Livewire\Home\UserChats::class);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -18,4 +19,3 @@ Route::post('/register', [AuthController::class, 'register']);
 
 // Dashboard
 Route::get('/dashboard', Index::class)->middleware('auth');
-

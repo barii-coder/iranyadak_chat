@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('comment')->nullable();
             $table->unsignedBigInteger('respondent_id')->nullable();
             $table->string('respondent_profile_image_path')->nullable();
-            $table->string('respondent_name')->nullable();
             $table->string('respondent_by_code')->nullable();
             $table->timestamps();
         });

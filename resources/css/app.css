@@ -2,6 +2,11 @@
 
 * {
     border: none !important;
+    font-family: system-ui;
+}
+
+.middle {
+    vertical-align: middle!important;
 }
 
 /* دکمه شناور */
@@ -105,12 +110,62 @@
     cursor: pointer;
 }
 
-#productCode {
-    /*margin-top: 20px;*/
-    /*padding: 12px;*/
-    /*background-color: #e0f7fa;*/
-    /*border-radius: 8px;*/
-    /*font-size: 16px;*/
+.back_icon {
+    width: 0;
+    opacity: 0;
+    transition: .5s opacity;
 }
 
+.parent_of_back_icon:hover {
+    .back_icon {
+        width: auto;
+        opacity: 1;
+        transition: 1s opacity;
+    }
+}
+
+.status_bar {
+    position: absolute;
+    height: 280px;
+    /*box-shadow: 0 0 5px #999 ;*/
+    bottom: 20px;
+    width: 80%;
+    background: #e5ddd5;
+    border-radius: 10px;
+    overflow: scroll;
+}
+
+.status_text {
+    display: inline-block;
+    background: #2AABEE;
+    float: right;
+    padding: 5px 15px;
+    color: #fff;
+}
+
+.inline-block {
+    display: inline-block !important;
+}
+
+li {
+    list-style: none;
+}
+
+img {
+    border-radius: 50%;
+}
+.sticky{
+    position: sticky;
+}
+
+.top-0{
+    top: 0;
+}
+.z-10{
+    z-index: 1000;
+}
+
+.cursor-pointer{
+    cursor: pointer;
+}
 
