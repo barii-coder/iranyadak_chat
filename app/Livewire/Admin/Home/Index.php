@@ -10,8 +10,14 @@ use Livewire\Component;
 use function PHPUnit\Framework\isArray;
 use Carbon\Carbon;
 
+use Livewire\WithFileUploads;
+
 class Index extends Component
 {
+    use WithFileUploads;
+
+    public $uploadedImage; // برای ذخیره موقت فایل
+
     // chat_in_progress
     // ENDED = 0;
     // ANSWERED = 1;
@@ -21,6 +27,7 @@ class Index extends Component
     public $messageTimesByCode = [];
 
     public $test;
+    public $aa;
     public $prices = [];
     public array $selectedCodes = [];
 
@@ -72,6 +79,30 @@ class Index extends Component
         $repeatedCodes = \App\Models\Message::pluck('code')->toArray();
 
         $this->messageCounts = array_count_values($repeatedCodes);
+    }
+
+    public function uploadImage($event, $messageId)
+    {
+        $this->uploadedImage = $event->target->files[0]; // فایل انتخابی
+
+        // اعتبارسنجی فایل
+        $this->validate([
+            'uploadedImage' => 'image|max:2048', // فقط تصویر تا 2MB
+        ]);
+
+        // ذخیره فایل در storage/app/public/messages
+        $path = $this->uploadedImage->store('messages', 'public');
+
+        // ذخیره مسیر در جدول Messages (یا Answer)
+        Message::where('id', $messageId)->update([
+            'image_path' => $path
+        ]);
+
+        // پاک کردن فایل موقت
+        $this->uploadedImage = null;
+
+        // Optional: پیام موفقیت یا refresh کامپوننت
+        $this->dispatchBrowserEvent('imageUploaded', ['messageId' => $messageId]);
     }
 
     public function submit()
@@ -150,6 +181,36 @@ class Index extends Component
             Answer::query()->where('message_id', $id)->update([
                 'price' => $this->prices[$id] ?? null,
                 'respondent_by_code' => '',
+            ]);
+
+            Message::query()->where('id', $id)
+                ->update(['chat_in_progress' => '1','active_group' => '0']);
+
+            $this->prices = [];
+        }
+    }
+
+    public function submit_answer_on3($id)
+    {
+        $this->validate();
+
+        $a = Answer::query()->where('message_id', $id)->get();
+
+        if ($a->isEmpty()) {
+            Answer::query()->create([
+                'user_id' => '1',
+                'message_id' => $id,
+                'price' => $this->prices[$id] ?? null,
+            ]);
+
+            Message::query()->where('id', $id)
+                ->update(['chat_in_progress' => '1','active_group' => '0']);
+
+            $this->prices = [];
+        } else {
+            Answer::query()->where('message_id', $id)->update([
+                'price' => $this->prices[$id] ?? null,
+                'respondent_by_code' => '0',
             ]);
 
             Message::query()->where('id', $id)

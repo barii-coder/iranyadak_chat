@@ -68,8 +68,8 @@
                                 @endphp
 
                                 <p onclick="copyText(this)"
-                                   class="cursor-pointer text-gray-700 leading-tight inline-block">
-                                    {{ $message->code }}
+                                   class="inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none">
+                                    {{ trim(explode(':', $message->code)[0]) }}
 
                                     @if($count > 1)
                                         {{--                                        <span class="text-red-500">*</span>--}}
@@ -109,7 +109,7 @@
                                            placeholder="کامنت"
                                            class="mt-1 w-[45%] float-right bg-gray-100 rounded px-1 py-0.5">
                                     {{-- قیمت --}}
-                                    <div class="flex mt-1 bg-gray-100 rounded overflow-hidden">
+                                    <div class="flex mt-2 bg-gray-100 rounded overflow-hidden">
                                         <input type="text"
                                                wire:model.lazy="prices.{{ $message->id }}"
                                                placeholder="قیمت"
@@ -196,6 +196,13 @@ $user->id == $firstAnswer->message->user_id &&
                                           stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
+                                <button onclick="copyGroupCodes('{{ $groupId }}', this)"
+                                        class="copy-btn p-1 rounded-full block hover:bg-red-500/20 transition"
+                                        title="کپی کلی">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000" viewBox="0 0 24 24">
+                                        <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
+                                    </svg>
+                                </button>
                         </div>
                         <div class="float-right w-[90%]">
                             @foreach($groupAnswers as $answer)
@@ -205,15 +212,22 @@ $user->id == $firstAnswer->message->user_id &&
                                     <div class="inline-block mt-2">
                                 <span
                                     class="inline-block  text-slate-500 rounded-2xl cursor-pointer ">
-                                    <p onclick="copyText(this)" class="inline-block text-center text-xs font-semibold">
-                                        {{ $answer->message->code }}
-                                    </p>
+{{--                                    <p onclick="copyText(this)"--}}
+{{--                                       class="group-code group-{{ $groupId }} inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none">--}}
+{{--                                            {{ trim(explode(':', $answer->message->code)[0]) }}--}}
+{{--                                    </p>--}}
+<p onclick="copyText(this)"
+   class="group-code group-{{ $groupId }} inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none"
+   data-price="{{ $answer->price }}">
+    {{ trim(explode(':', $answer->message->code)[0]) }}
+</p>
+
                                 </span>
                                         @if($answer->comment)
                                             <span
                                                 class="inline-block ml-2 px-3 py-1 bg-amber-100 text-amber-800 rounded-xl text-xs shadow-sm">
                                         {{ $answer->comment }}
-                                    </span>
+                                            </span>
                                         @endif
                                     </div>
 
@@ -345,10 +359,10 @@ $user->id == $firstAnswer->message->user_id &&
                         <input type="text"
                                class="h-full w-full pl-2"
                                wire:model.defer="prices.{{ $message->id }}"
-                               wire:keydown.enter="submit_answer({{ $message->id }})"
+                               wire:keydown.enter="submit_answer_on3({{ $message->id }})"
                                placeholder="قیمت">
 
-                        <button wire:click="submit_answer({{ $message->id }})"
+                        <button wire:click="submit_answer_on3({{ $message->id }})"
                                 class="absolute right-0 top-0 h-full px-4 bg-blue-600 text-white">
                             ➤
                         </button>
@@ -386,19 +400,31 @@ $user->id == $firstAnswer->message->user_id &&
                             <span class="font-bold text-gray-700 text-xs">
                             گروه {{ $groupId }}
                         </span>
+                            <button onclick="copyCompletedGroup('{{ $groupId }}', this)"
+                                    class="copy-btn p-1 rounded-full hover:bg-green-500/20 transition"
+                                    title="کپی کدها و قیمت‌ها">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000" viewBox="0 0 24 24">
+                                    <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                            </button>
+
                         </div>
 
                         <span class="text-gray-500 text-[10px]">
-                        {{ \Carbon\Carbon::parse($firstChat->updated_at)->timezone('Asia/Tehran')->format('H:i') }}
+{{ $firstChat->updated_at->addMinutes(30)->format('H:i') }}
                     </span>
                     </div>
 
                     {{-- آیتم‌ها --}}
                     @foreach($groupChats as $chat)
-                        <div class="border-t border-gray-200 pt-1 mt-1 leading-tight flex justify-between">
+                        <div class="border-t border-gray-200 pt-1 mt-1 leading-tight flex justify-between completed-{{ $groupId }}">
 
                         <span class="text-gray-700">
-                            {{ $chat->code }}
+                                <p onclick="copyText(this)"
+                                   class="inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none">
+                                    {{ trim(explode(':', $chat->code)[0]) }}
+                                </p>
+                            :
                         </span>
 
                             <span class="font-bold text-gray-800">
@@ -415,74 +441,74 @@ $user->id == $firstAnswer->message->user_id &&
     </div>
 
 
-    {{--    <div class="status_bar">--}}
-    {{--        <div class="status_text sticky top-0">--}}
-    {{--            صورت ها--}}
-    {{--        </div>--}}
-    {{--        <div class="m-2">--}}
-    {{--            @foreach($productsGrouped as $groupId => $messages)--}}
-    {{--                @if(count($messages)>1)--}}
-    {{--                    <div class="border rounded p-4 mb-4 m-1 bg-gray-50 inline-block float-left"--}}
-    {{--                         style="font-size: 9pt; font-weight: bold">--}}
-
-    {{--                        --}}{{--<div class="font-bold mb-2">گروه: {{ $groupId }}</div>--}}
-    {{--                        <form--}}
-    {{--                            wire:submit.prevent="editPriceOnSoraats(Object.fromEntries(new FormData($event.target)),'{{$groupId}}')">--}}
-    {{--                            @foreach($messages as $message)--}}
-    {{--                                <div--}}
-    {{--                                    class="{{ Str::endsWith(trim($message->code), ': -') ? 'text-gray-400 italic' : '' }}">--}}
-    {{--                                        <?php--}}
-    {{--                                        $msg = explode(":", $message->code);--}}
-    {{--                                        $msg1 = $msg[0] . ':';--}}
-    {{--                                        ?>--}}
-    {{--                                    {{ $msg1 }}--}}
-    {{--                                    @if($message->answers->last()?->respondent_by_code == 1 and $message->final_price == null)--}}
-    {{--                                        <span class="text-green-600">--}}
-    {{--                                    <input style='border: 1px solid #aaa!important' value='درحال برسی'--}}
-    {{--                                           name='price.{{$message->id}}'>--}}
-    {{--                                </span>--}}
-    {{--                                    @endif--}}
-    {{--                                    @if(Str::endsWith(trim($message->code), ['1','2','3','4','5','6','7','8','9','0','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']) )--}}
-    {{--                                            <?php--}}
-    {{--                                            $a = explode(":", $message->code);--}}
-    {{--                                            if (isset($a[1])) {--}}
-    {{--                                                $b = "--}}
-    {{--                                    <input style='border: 1px solid #aaa!important' value='$a[1]' name='price.$message->id'>--}}
-    {{--                                    ";--}}
-    {{--                                                $c = str_replace($a[1], $b, $a);--}}
-    {{--                                                echo $c[1];--}}
-    {{--                                            } else {--}}
-    {{--                                                $d = "--}}
-    {{--                                    <input style='border: 1px solid #aaa!important' name='price.$message->id'>--}}
-    {{--                                            ";--}}
-    {{--                                                echo $d;--}}
-    {{--                                            }--}}
-    {{--                                            ?>--}}
-    {{--                                    @endif--}}
-    {{--                                    @if($message->answers->last()?->price != null and $message->answers->last()?->respondent_by_code != 1)--}}
-    {{--                                        <span class="text-green-600"--}}
-    {{--                                              style="{{ Str::endsWith(trim($message->code), ': -') ? 'display: inline' : 'display: none' }}">--}}
-    {{--                                        <input type="text" style="border: 1px solid #aaa!important"--}}
-    {{--                                               value="{{ $message->answers->last()?->price }}"--}}
-    {{--                                               name='price.{{$message->id}}'--}}
-    {{--                                        >--}}
-    {{--                                    </span>--}}
-    {{--                                    @endif--}}
-    {{--                                </div>--}}
-    {{--                            @endforeach--}}
-    {{--                            <button type="submit"--}}
-    {{--                                    class="px-3 py-2 bg-blue-600 text-white rounded-xl float-right">--}}
-    {{--                                ثبت همه--}}
-    {{--                            </button>--}}
-    {{--                        </form>--}}
-    {{--                    </div>--}}
-    {{--                @endif--}}
-    {{--            @endforeach--}}
-
-    {{--        </div>--}}
-    {{--    </div>--}}
-
     <div class="status_bar">
+        <div class="status_text sticky top-0">
+            صورت ها
+        </div>
+        <div class="m-2">
+            @foreach($productsGrouped as $groupId => $messages)
+                @if(count($messages)>1)
+                    <div class="border rounded p-4 mb-4 m-1 bg-gray-50 inline-block float-left"
+                         style="font-size: 9pt; font-weight: bold">
+
+                        <div class="font-bold mb-2">گروه: {{ $groupId }}</div>
+                        <form
+                            wire:submit.prevent="editPriceOnSoraats(Object.fromEntries(new FormData($event.target)),'{{$groupId}}')">
+                            @foreach($messages as $message)
+                                <div
+                                    class="{{ Str::endsWith(trim($message->code), ': -') ? 'text-gray-400 italic' : '' }}">
+                                        <?php
+                                        $msg = explode(":", $message->code);
+                                        $msg1 = $msg[0] . ':';
+                                        ?>
+                                    {{ $msg1 }}
+                                    @if($message->answers->last()?->respondent_by_code == 1 and $message->final_price == null)
+                                        <span class="text-green-600">
+                                        <input style='border: 1px solid #aaa!important' value='درحال برسی'
+                                               name='price.{{$message->id}}'>
+                                    </span>
+                                    @endif
+                                    @if(Str::endsWith(trim($message->code), ['1','2','3','4','5','6','7','8','9','0','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']) )
+                                            <?php
+                                            $a = explode(":", $message->code);
+                                            if (isset($a[1])) {
+                                                $b = "
+                                        <input style='border: 1px solid #aaa!important' value='$a[1]' name='price.$message->id'>
+                                        ";
+                                                $c = str_replace($a[1], $b, $a);
+                                                echo $c[1];
+                                            } else {
+                                                $d = "
+                                        <input style='border: 1px solid #aaa!important' name='price.$message->id'>
+                                                ";
+                                                echo $d;
+                                            }
+                                            ?>
+                                    @endif
+                                    @if($message->answers->last()?->price != null and $message->answers->last()?->respondent_by_code != 1)
+                                        <span class="text-green-600"
+                                              style="{{ Str::endsWith(trim($message->code), ': -') ? 'display: inline' : 'display: none' }}">
+                                            <input type="text" style="border: 1px solid #aaa!important"
+                                                   value="{{ $message->answers->last()?->price }}"
+                                                   name='price.{{$message->id}}'
+                                            >
+                                        </span>
+                                    @endif
+                                </div>
+                            @endforeach
+                            <button type="submit"
+                                    class="px-3 py-2 bg-blue-600 text-white rounded-xl float-right">
+                                ثبت همه
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            @endforeach
+
+        </div>
+    </div>
+
+    <div class="status_bar shadow">
         <div class="status_text sticky top-0">
             صورت ها
         </div>
@@ -518,7 +544,6 @@ $user->id == $firstAnswer->message->user_id &&
                                         $message->answers->last()?->price !== null &&
                                         $message->answers->last()?->respondent_by_code != 1
                                     )
-                                        {{-- قیمت ثبت‌شده --}}
                                         <input
                                             type="text"
                                             style="border: 1px solid #aaa!important"
@@ -530,7 +555,6 @@ $user->id == $firstAnswer->message->user_id &&
                                         $message->answers->last()?->respondent_by_code == 1 &&
                                         $message->final_price == null
                                     )
-                                        {{-- در حال بررسی --}}
                                         <input
                                             style="border: 1px solid #aaa!important; color: green;"
                                             placeholder="درحال بررسی"
@@ -545,7 +569,6 @@ $user->id == $firstAnswer->message->user_id &&
                                             'U','V','W','X','Y','Z'
                                         ])
                                     )
-                                        {{-- مقدار داخل code --}}
                                         <input
                                             style="border: 1px solid #aaa!important;"
                                             value="{{ $codeValue }}"
@@ -553,7 +576,6 @@ $user->id == $firstAnswer->message->user_id &&
                                         >
 
                                     @else
-                                        {{-- خالی --}}
                                         <input
                                             style="border: 1px solid #aaa!important"
                                             name="price.{{ $message->id }}"
@@ -579,8 +601,18 @@ $user->id == $firstAnswer->message->user_id &&
         </div>
     </div>
 
+    {{--    <form wire:submit.prevent="submit_image(Object.fromEntries(new FormData($event.target)))">--}}
+    {{--        <input type="file" name="image">--}}
+    {{--        <button>eosfiuh</button>--}}
+    {{--    </form>--}}
 
     <form wire:submit.prevent="submit" id="chat-box">
+        <div class="ripple-container">
+            <div
+                class="ripple ripple-on ripple-out"
+                style="left: 25px; top: -14.9167px; background-color: rgb(153, 153, 153); transform: scale(2.65152);"></div>
+        </div>
+        </span>
         <div id="chat-header">
             <a href="/view-user-chats" class="bg-white p-1 rounded-xl shadow float-left">📩</a>
             <a href="/login" class="bg-white p-1 rounded-xl shadow float-left">👤</a>
@@ -588,7 +620,6 @@ $user->id == $firstAnswer->message->user_id &&
             ارسال پیام
             </span>
         </div>
-
         <div id="chat-body">
             <div class="msg bot">.کد محصول مورد نظر را وارد بنمایید</div>
         </div>
@@ -597,6 +628,16 @@ $user->id == $firstAnswer->message->user_id &&
             <textarea type="text" wire:model.defer="test" id="messageInput" wire:keydown.enter.prevent="submit"
                       placeholder="پیام..."> </textarea>
             <button onclick="sendMessage()">➤</button>
+            <!-- گیره کاغذ -->
+            <button type="button" onclick="document.getElementById('fileInput-{{ $message->id }}').click()" class="p-1 rounded-full hover:bg-red-500/20 transition" title="آپلود تصویر">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000" viewBox="0 0 24 24">
+                    <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
+                </svg>
+            </button>
+
+            <!-- input فایل مخفی -->
+            <input type="file" id="fileInput-{{ $message->id }}" wire:change="uploadImage($event, {{ $message->id }})" style="display:none">
+
         </div>
     </form>
 
@@ -606,6 +647,72 @@ $user->id == $firstAnswer->message->user_id &&
         // setInterval(() => {
         //     Livewire.dispatch('checkNewMessages')
         // }, 30);
+
+        function copyCompletedGroup(groupId, btn) {
+            let lines = [];
+
+            document.querySelectorAll('.completed-' + groupId).forEach(row => {
+                const code = row.querySelector('p')?.innerText.trim();
+                const price = row.querySelector('.font-bold')?.innerText.trim();
+
+                if (code && price) {
+                    lines.push(code + ':' + price);
+                }
+            });
+
+            if (lines.length === 0) return;
+
+            navigator.clipboard.writeText(lines.join('\n'));
+            showCopySuccess(btn); // همون افکت سبز شدن
+        }
+
+        function showCopySuccess(btn) {
+            const svg = btn.querySelector('svg');
+            if (!svg) return;
+
+            const oldFill = svg.style.fill;
+            svg.style.fill = '#16a34a';
+
+            btn.classList.add('scale-110');
+
+            setTimeout(() => {
+                svg.style.fill = oldFill || '#000';
+                btn.classList.remove('scale-110');
+            }, 2000);
+        }
+
+
+
+        function copyGroupCodes(groupId, btn) {
+            let result = [];
+
+            document.querySelectorAll('.group-' + groupId).forEach(el => {
+                const code = el.innerText.trim();
+                const price = el.dataset.price;
+
+                if (!price || price === 'x' || price === 'L' || price === 'n') return;
+
+                result.push(code + ':' + price);
+            });
+
+            if (result.length === 0) return;
+
+            navigator.clipboard.writeText(result.join('\n'));
+
+            // 🎨 افکت سبز شدن آیکون
+            const svg = btn.querySelector('svg');
+            if (!svg) return;
+
+            const oldColor = svg.style.fill;
+            svg.style.fill = '#16a34a'; // سبز
+
+            btn.classList.add('scale-110');
+
+            setTimeout(() => {
+                svg.style.fill = oldColor || '#000';
+                btn.classList.remove('scale-110');
+            }, 2000);
+        }
 
 
         function handleCodeClick(event, code, messageId) {
