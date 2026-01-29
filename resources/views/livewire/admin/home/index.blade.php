@@ -218,7 +218,7 @@ $user->id == $firstAnswer->message->user_id &&
                                     <div class="inline-block mt-1">
                                 <span
                                     class="inline-block  text-slate-500 rounded-2xl cursor-pointer ">
-{{--                                    <p onclick="copyText(this)"--}}
+                                    {{--<p onclick="copyText(this)"--}}
                                     {{--                                       class="group-code group-{{ $groupId }} inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none">--}}
                                     {{--                                            {{ trim(explode(':', $answer->message->code)[0]) }}--}}
                                     {{--                                    </p>--}}
@@ -620,7 +620,6 @@ $user->id == $firstAnswer->message->user_id &&
                 class="ripple ripple-on ripple-out"
                 style="left: 25px; top: -14.9167px; background-color: rgb(153, 153, 153); transform: scale(2.65152);"></div>
         </div>
-        </span>
         <div id="chat-header">
             <a href="/view-user-chats" class="bg-white p-1 rounded-xl shadow float-left">📩</a>
             <a href="/login" class="bg-white p-1 rounded-xl shadow float-left ms-2">👤</a>
@@ -641,23 +640,11 @@ $user->id == $firstAnswer->message->user_id &&
     wire:keydown.enter.prevent="submit"
     placeholder="پیام...">
 </textarea>
+            <div id="previewContainer"></div>
             <button onclick="sendMessage()">➤</button>
-            <!-- گیره کاغذ -->
-{{--            <button type="button" onclick="document.getElementById('fileInput-{{@$message->id }}').click()"--}}
-{{--                    class="p-1 rounded-full bg-none" title="آپلود تصویر">--}}
-{{--                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">--}}
-{{--                    <path--}}
-{{--                        d="M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H12M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V12M17 19H21M19 17V21"--}}
-{{--                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>--}}
-{{--                </svg>--}}
-{{--            </button>--}}
-
-            <!-- input فایل مخفی -->
-            {{--            <input type="file" id="fileInput-{{ $message->id }}" wire:change="uploadImage($event, {{ $message->id }})" style="display:none">--}}
 
         </div>
     </form>
-
     <script>
 
         // گرفتن اجازه نوتیف فقط یکبار
@@ -673,43 +660,6 @@ $user->id == $firstAnswer->message->user_id &&
             }
         });
 
-        const textarea = document.getElementById("messageInput");
-        const preview = document.getElementById("previewImage");
-
-        textarea.addEventListener("paste", (event) => {
-            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-            let hasFile = false; // آیا فایل هست؟
-
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                if (item.kind === "file") {
-                    hasFile = true;
-                    const blob = item.getAsFile();
-                    const reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        const base64Data = e.target.result;
-
-                        // نمایش پیش‌نمایش
-                        preview.src = base64Data;
-                        preview.style.display = "block";
-
-                        // ارسال فقط وقتی فایل هست
-                        Livewire.emit('pasteWithText', {
-                            text: textarea.value,
-                            image: base64Data
-                        });
-                    };
-
-                    reader.readAsDataURL(blob);
-                }
-            }
-
-            // فقط وقتی فایل هست، Paste معمولی textarea رو جلوگیری کن
-            if (hasFile) {
-                event.preventDefault();
-            }
-        });
 
         const lightbox = document.getElementById("lightbox");
         const lightboxImg = document.getElementById("lightbox-img");

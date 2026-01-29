@@ -7,6 +7,7 @@ use \App\Livewire\Admin\Home\Index;
 Route::get('/', Index::class)->name('home');
 
 Route::get('/submit', \App\Livewire\Admin\Support\Index::class);
+Route::get('/aaa', \App\Livewire\Chat::class);
 // Login
 Route::get('/login', fn() => view('login'))->name('login');
 Route::get('/view-user-chats',\App\Livewire\Home\UserChats::class);

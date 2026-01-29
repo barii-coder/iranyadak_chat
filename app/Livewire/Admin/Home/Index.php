@@ -4,11 +4,14 @@ namespace App\Livewire\Admin\Home;
 
 use App\Models\Answer;
 use App\Models\Message;
+use App\Models\User;
 use http\Env\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use function PHPUnit\Framework\isArray;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 use Livewire\WithFileUploads;
 
@@ -58,8 +61,26 @@ class Index extends Component
         'toggleCode' => 'toggleCode',
         'codeAnswerDirect' => 'code_answer',
         'codeAnswerWithComment' => 'codeAnswerWithComment',
-        'pasteWithText' => 'handlePaste'
+        'pasteWithText' => 'handlePasteWithText'
     ];
+
+    public function handlePasteWithText($data)
+    {
+        if(!empty($data['image'])){
+            $imageData = $data['image'];
+            $image = str_replace('data:image/png;base64,', '', $imageData);
+            $image = str_replace(' ', '+', $image);
+            $fileName = 'images/' . uniqid() . '.png';
+            \Storage::disk('public')->put($fileName, base64_decode($image));
+
+            // حالا path رو تو دیتابیس ذخیره کن
+            MyModel::create([
+                'text' => $data['text'],
+                'image_path' => $fileName
+            ]);
+        }
+    }
+
 
     function hasMoreThanThreePersianLetters($string) {
         // پیدا کردن همه حروف فارسی
@@ -89,12 +110,6 @@ class Index extends Component
         $this->messageCounts = array_count_values($repeatedCodes);
     }
 
-    public function handlePaste($data)
-    {
-        // $data['text'] => محتوای textarea
-        // $data['image'] => Base64 تصویر
-        dd($data);
-    }
 
     public function submit()
     {
@@ -167,6 +182,11 @@ class Index extends Component
 
         $a = Answer::query()->where('message_id', $id)->get();
 
+        $b = Message::query()->where('id', $id)->get();
+        foreach ($b as $c) {
+            $name = User::query()->where('id', $c->user_id)->first();
+        }
+
         if ($a->isEmpty()) {
             Answer::query()->create([
                 'user_id' => $user->id,
@@ -190,7 +210,7 @@ class Index extends Component
 
             $this->prices = [];
         }
-        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
+        $this->dispatch('answer-submitted', message: " پاسخ کاربر $name->name ثبت شد! ");
     }
 
     public function submit_answer_on3($id)
@@ -531,6 +551,50 @@ class Index extends Component
 //            compact('messages', 'ended_chats', 'answers', 'wait_for_price', 'user', 'productsGrouped', 'activeGroupIds', 'answersGrouped', 'groups')
 //        );
 //    }
+
+    public function handlePaste($data)
+    {
+        $user = Auth::user();
+
+        $text = trim($data['text'] ?? '');
+        $base64Image = $data['image'] ?? null;
+
+        $imagePath = null;
+
+        // 🔹 تبدیل Base64 به فایل
+        if ($base64Image) {
+            preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type);
+
+            $image = substr($base64Image, strpos($base64Image, ',') + 1);
+            $image = base64_decode($image);
+
+            $extension = strtolower($type[1] ?? 'png');
+            $fileName = 'chat_' . Str::random(10) . '.' . $extension;
+
+            Storage::disk('public')->put("chat-images/$fileName", $image);
+
+            $imagePath = "chat-images/$fileName";
+        }
+
+        // اگر نه متن بود نه عکس → هیچ کاری نکن
+        if (!$text && !$imagePath) {
+            return;
+        }
+
+        $groupId = time() . '-' . rand(100000, 999999);
+
+        Message::create([
+            'user_id' => $user->id,
+            'code' => $text ?: '📷 تصویر ارسال شد',
+            'image_path' => $imagePath,
+            'active_group' => 1,
+            'question' => $this->hasMoreThanThreePersianLetters($text) ? '1' : '0',
+            'group_id' => $groupId,
+            'chat_in_progress' => '2',
+        ]);
+
+        $this->test = ''; // خالی شدن textarea
+    }
 
     public function render()
     {
