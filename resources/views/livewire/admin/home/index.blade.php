@@ -1,7 +1,10 @@
 <div class="w-full" style="margin: 0 10px">
     <div style="width: 1px;height: 1px;background: #f00"></div>
+    <div id="lightbox" class="lightbox">
+        <span class="close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" />
+    </div>
 
-    {{-- Error --}}
     @error('prices')
     <div class="w-full max-w-md mx-auto">
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 text-center rounded relative">
@@ -18,7 +21,7 @@
             چت‌های در جریان
         </div>
 
-        <ul class="text-[13px] space-y-2">
+        <ul class="text-[13px] space-y-2 p-1">
 
             @foreach($groups as $groupId => $messages)
 
@@ -29,23 +32,24 @@
                 {{-- گروه --}}
                 <div class="bg-white rounded-lg p-2 border border-gray-300">
 
+                <div id="lightbox" class="lightbox">
+                    <span class="close">&times;</span>
+                    <img class="lightbox-content" />
+                </div>
                     {{-- هدر گروه --}}
                     <div class="inline-block float-left">
                         <img src="{{ $firstMessage->user->profile_image_path }}"
-                             class="w-6 h-6 rounded-full">
+                             class="w-6 h-6 rounded-full  gallery-img">
                         <button
                             {{--                            onclick="hideMessage({{ $firstAnswer->message->id }})"--}}
                             wire:click="deleteGroup('{{ $groupId }}')"
                             class="p-1 rounded-full hover:bg-red-500/20 transition"
                             title="حذف گروه">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6l-1 14H6L5 6"/>
-                                <path d="M10 11v6"/>
-                                <path d="M14 11v6"/>
-                                <path d="M8 6V4h8v2"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" width="18"
+                                 text-rendering="geometricPrecision" image-rendering="optimizeQuality"
+                                 fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 456 511.82">
+                                <path fill="#FD3B3B"
+                                      d="M48.42 140.13h361.99c17.36 0 29.82 9.78 28.08 28.17l-30.73 317.1c-1.23 13.36-8.99 26.42-25.3 26.42H76.34c-13.63-.73-23.74-9.75-25.09-24.14L20.79 168.99c-1.74-18.38 9.75-28.86 27.63-28.86zM24.49 38.15h136.47V28.1c0-15.94 10.2-28.1 27.02-28.1h81.28c17.3 0 27.65 11.77 27.65 28.01v10.14h138.66c.57 0 1.11.07 1.68.13 10.23.93 18.15 9.02 18.69 19.22.03.79.06 1.39.06 2.17v42.76c0 5.99-4.73 10.89-10.62 11.19-.54 0-1.09.03-1.63.03H11.22c-5.92 0-10.77-4.6-11.19-10.38 0-.72-.03-1.47-.03-2.23v-39.5c0-10.93 4.21-20.71 16.82-23.02 2.53-.45 5.09-.37 7.67-.37zm83.78 208.38c-.51-10.17 8.21-18.83 19.53-19.31 11.31-.49 20.94 7.4 21.45 17.57l8.7 160.62c.51 10.18-8.22 18.84-19.53 19.32-11.32.48-20.94-7.4-21.46-17.57l-8.69-160.63zm201.7-1.74c.51-10.17 10.14-18.06 21.45-17.57 11.32.48 20.04 9.14 19.53 19.31l-8.66 160.63c-.52 10.17-10.14 18.05-21.46 17.57-11.31-.48-20.04-9.14-19.53-19.32l8.67-160.62zm-102.94.87c0-10.23 9.23-18.53 20.58-18.53 11.34 0 20.58 8.3 20.58 18.53v160.63c0 10.23-9.24 18.53-20.58 18.53-11.35 0-20.58-8.3-20.58-18.53V245.66z"/>
                             </svg>
                         </button>
                     </div>
@@ -87,7 +91,7 @@
 
                                     {{-- دکمه‌های کد --}}
                                     <div class="inline-block gap-1 mt-1 flex-wrap">
-                                        @foreach(['a','k','h','g','x','L'] as $c)
+                                        @foreach(['a','k','h','g','x','L', $message->question == '1' ? '👍' : null,$message->question == '1' ? '👎' : null,] as $c)
                                             @php $key = $message->id . ':' . $c; @endphp
                                             <button
                                                 onclick="handleCodeClick(event,'{{ $c }}',{{ $message->id }})"
@@ -158,7 +162,7 @@
                     $firstAnswer = $groupAnswers->first();
                 @endphp
 
-                <li class="bg-gray-100 rounded-2xl p-1 w-[100%] shadow-sm border border-slate-700 float-right">
+                <li class="bg-gray-100 rounded-2xl p-1 w-[100%] shadow-sm border border-slate-700 float-right mb-1">
 
                     <ul class="">
 
@@ -170,7 +174,7 @@ $user->id == $firstAnswer->message->user_id &&
                                 <button
                                     onclick="hideMessage({{ $firstAnswer->message->id }})"
                                     wire:click="checkAll('{{ $groupId }}')"
-                                    class="p-2 rounded-full hover:bg-red-500/20 transition"
+                                    class="p-2 rounded-full hover:bg-green-600/30 transition"
                                     title="تایید کل">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                          viewBox="0 0 24 24"
@@ -182,13 +186,13 @@ $user->id == $firstAnswer->message->user_id &&
                             @endif
                             <img
                                 src="{{ $firstAnswer->message->user->profile_image_path }}"
-                                class="w-8 h-8 rounded-xl ring-2 ring-white shadow block"
+                                class="w-8 h-8 rounded-xl ring-2 m-1 ring-white shadow block"
                                 alt=""
                             >
                             <button
                                 {{--onclick="hideMessage({{ $firstAnswer->message->id }})"--}}
                                 wire:click="back('{{ $groupId }}')"
-                                class="p-1 rounded-full hover:bg-red-500/20 transition"
+                                class="p-2 ms-1 rounded-full hover:bg-red-500/20 transition"
                                 title="برگشت">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none">
                                     <path d="M20 12H4M10 6l-6 6 6 6"
@@ -196,32 +200,33 @@ $user->id == $firstAnswer->message->user_id &&
                                           stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
-                                <button onclick="copyGroupCodes('{{ $groupId }}', this)"
-                                        class="copy-btn p-1 rounded-full block hover:bg-red-500/20 transition"
-                                        title="کپی کلی">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000" viewBox="0 0 24 24">
-                                        <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
-                                    </svg>
-                                </button>
+                            <button onclick="copyGroupCodes('{{ $groupId }}', this)"
+                                    class="copy-btn p-2 m-1 rounded-full block hover:bg-green-500/20 transition"
+                                    title="کپی کلی">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000"
+                                     viewBox="0 0 24 24">
+                                    <path
+                                        d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                            </button>
                         </div>
                         <div class="float-right w-[90%]">
                             @foreach($groupAnswers as $answer)
                                 <li
                                     class="rounded-xl hover:bg-slate-100 transition-all duration-200 p-1"
                                     wire:key="answer-{{ $answer->id }}">
-                                    <div class="inline-block mt-2">
+                                    <div class="inline-block mt-1">
                                 <span
                                     class="inline-block  text-slate-500 rounded-2xl cursor-pointer ">
 {{--                                    <p onclick="copyText(this)"--}}
-{{--                                       class="group-code group-{{ $groupId }} inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none">--}}
-{{--                                            {{ trim(explode(':', $answer->message->code)[0]) }}--}}
-{{--                                    </p>--}}
+                                    {{--                                       class="group-code group-{{ $groupId }} inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none">--}}
+                                    {{--                                            {{ trim(explode(':', $answer->message->code)[0]) }}--}}
+                                    {{--                                    </p>--}}
 <p onclick="copyText(this)"
    class="group-code group-{{ $groupId }} inline-block text-xs font-semibold text-slate-600 cursor-pointer leading-none"
    data-price="{{ $answer->price }}">
     {{ trim(explode(':', $answer->message->code)[0]) }}
 </p>
-
                                 </span>
                                         @if($answer->comment)
                                             <span
@@ -309,11 +314,11 @@ $user->id == $firstAnswer->message->user_id &&
                                             @endif
                                         @endif
                                     @else
-                                        {{--                                        <button--}}
-                                        {{--                                            wire:click="check_answer({{ $answer->message->id }})"--}}
-                                        {{--                                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl float-right shadow transition">--}}
-                                        {{--                                            ✔--}}
-                                        {{--                                        </button>--}}
+                                        {{--<button--}}
+                                        {{--    wire:click="check_answer({{ $answer->message->id }})"--}}
+                                        {{--    class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl float-right shadow transition">--}}
+                                        {{--    ✔--}}
+                                        {{--</button>--}}
                                     @endif
 
                                 </li>
@@ -403,8 +408,10 @@ $user->id == $firstAnswer->message->user_id &&
                             <button onclick="copyCompletedGroup('{{ $groupId }}', this)"
                                     class="copy-btn p-1 rounded-full hover:bg-green-500/20 transition"
                                     title="کپی کدها و قیمت‌ها">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000" viewBox="0 0 24 24">
-                                    <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000"
+                                     viewBox="0 0 24 24">
+                                    <path
+                                        d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
                                 </svg>
                             </button>
 
@@ -417,7 +424,8 @@ $user->id == $firstAnswer->message->user_id &&
 
                     {{-- آیتم‌ها --}}
                     @foreach($groupChats as $chat)
-                        <div class="border-t border-gray-200 pt-1 mt-1 leading-tight flex justify-between completed-{{ $groupId }}">
+                        <div
+                            class="border-t border-gray-200 pt-1 mt-1 leading-tight flex justify-between completed-{{ $groupId }}">
 
                         <span class="text-gray-700">
                                 <p onclick="copyText(this)"
@@ -615,34 +623,119 @@ $user->id == $firstAnswer->message->user_id &&
         </span>
         <div id="chat-header">
             <a href="/view-user-chats" class="bg-white p-1 rounded-xl shadow float-left">📩</a>
-            <a href="/login" class="bg-white p-1 rounded-xl shadow float-left">👤</a>
+            <a href="/login" class="bg-white p-1 rounded-xl shadow float-left ms-2">👤</a>
             <span class="float-right">
             ارسال پیام
             </span>
         </div>
         <div id="chat-body">
             <div class="msg bot">.کد محصول مورد نظر را وارد بنمایید</div>
+            <img id="previewImage" style="border-radius: 0"/>
         </div>
 
         <div id="chat-input">
-            <textarea type="text" wire:model.defer="test" id="messageInput" wire:keydown.enter.prevent="submit"
-                      placeholder="پیام..."> </textarea>
+<textarea
+    type="text"
+    wire:model.defer="test"
+    id="messageInput"
+    wire:keydown.enter.prevent="submit"
+    placeholder="پیام...">
+</textarea>
             <button onclick="sendMessage()">➤</button>
             <!-- گیره کاغذ -->
-            <button type="button" onclick="document.getElementById('fileInput-{{ $message->id }}').click()" class="p-1 rounded-full hover:bg-red-500/20 transition" title="آپلود تصویر">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#000" viewBox="0 0 24 24">
-                    <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/>
-                </svg>
-            </button>
+{{--            <button type="button" onclick="document.getElementById('fileInput-{{@$message->id }}').click()"--}}
+{{--                    class="p-1 rounded-full bg-none" title="آپلود تصویر">--}}
+{{--                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">--}}
+{{--                    <path--}}
+{{--                        d="M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H12M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V12M17 19H21M19 17V21"--}}
+{{--                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>--}}
+{{--                </svg>--}}
+{{--            </button>--}}
 
             <!-- input فایل مخفی -->
-            <input type="file" id="fileInput-{{ $message->id }}" wire:change="uploadImage($event, {{ $message->id }})" style="display:none">
+            {{--            <input type="file" id="fileInput-{{ $message->id }}" wire:change="uploadImage($event, {{ $message->id }})" style="display:none">--}}
 
         </div>
     </form>
 
-
     <script>
+
+        // گرفتن اجازه نوتیف فقط یکبار
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+
+        window.addEventListener('answer-submitted', event => {
+            if (Notification.permission === 'granted') {
+                new Notification("ثبت پاسخ", {
+                    body: event.detail.message,
+                });
+            }
+        });
+
+        const textarea = document.getElementById("messageInput");
+        const preview = document.getElementById("previewImage");
+
+        textarea.addEventListener("paste", (event) => {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            let hasFile = false; // آیا فایل هست؟
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.kind === "file") {
+                    hasFile = true;
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const base64Data = e.target.result;
+
+                        // نمایش پیش‌نمایش
+                        preview.src = base64Data;
+                        preview.style.display = "block";
+
+                        // ارسال فقط وقتی فایل هست
+                        Livewire.emit('pasteWithText', {
+                            text: textarea.value,
+                            image: base64Data
+                        });
+                    };
+
+                    reader.readAsDataURL(blob);
+                }
+            }
+
+            // فقط وقتی فایل هست، Paste معمولی textarea رو جلوگیری کن
+            if (hasFile) {
+                event.preventDefault();
+            }
+        });
+
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+        const closeBtn = document.querySelector(".close");
+
+        // وقتی روی هر عکس کلیک شد
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("gallery-img")) {
+                lightbox.style.display = "block";
+                lightboxImg.src = e.target.src;
+            }
+        });
+
+        // بستن با دکمه ضربدر
+        closeBtn.addEventListener("click", () => {
+            lightbox.style.display = "none";
+        });
+
+        // بستن با کلیک روی بک‌گراند
+        lightbox.addEventListener("click", (e) => {
+            if (e.target === lightbox) {
+                lightbox.style.display = "none";
+            }
+        });
+
+
 
         // setInterval(() => {
         //     Livewire.dispatch('checkNewMessages')
@@ -656,7 +749,7 @@ $user->id == $firstAnswer->message->user_id &&
                 const price = row.querySelector('.font-bold')?.innerText.trim();
 
                 if (code && price) {
-                    lines.push(code + ':' + price);
+                    lines.push(code + ' ' + ':' + ' ' + price);
                 }
             });
 
@@ -682,7 +775,6 @@ $user->id == $firstAnswer->message->user_id &&
         }
 
 
-
         function copyGroupCodes(groupId, btn) {
             let result = [];
 
@@ -692,7 +784,7 @@ $user->id == $firstAnswer->message->user_id &&
 
                 if (!price || price === 'x' || price === 'L' || price === 'n') return;
 
-                result.push(code + ':' + price);
+                result.push(code + ' ' + ':' + ' ' + price);
             });
 
             if (result.length === 0) return;

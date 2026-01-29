@@ -123,7 +123,9 @@
         transition: 1s opacity;
     }
 }
-
+.bg-none{
+    background: none!important;
+}
 .status_bar {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
     position: absolute;
@@ -170,3 +172,48 @@ img {
     cursor: pointer;
 }
 
+.gallery-img {
+    max-width: 250px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.gallery-img:hover {
+    opacity: 0.8;
+}
+
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 100000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.lightbox-content {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    max-height: 80vh;
+    border-radius: 10px;
+    animation: zoom 0.3s ease;
+}
+
+@keyframes zoom {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}

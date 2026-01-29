@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('code');
             $table->string('text')->nullable();
+            $table->string('question');
             $table->string('group_id');
             $table->string('active_group');
             $table->string('chat_in_progress');

@@ -58,7 +58,15 @@ class Index extends Component
         'toggleCode' => 'toggleCode',
         'codeAnswerDirect' => 'code_answer',
         'codeAnswerWithComment' => 'codeAnswerWithComment',
+        'pasteWithText' => 'handlePaste'
     ];
+
+    function hasMoreThanThreePersianLetters($string) {
+        // پیدا کردن همه حروف فارسی
+        preg_match_all('/[\x{0600}-\x{06FF}]/u', $string, $matches);
+
+        return count($matches[0]) > 3;
+    }
 
 
     public function checkNewMessages()
@@ -81,32 +89,16 @@ class Index extends Component
         $this->messageCounts = array_count_values($repeatedCodes);
     }
 
-    public function uploadImage($event, $messageId)
+    public function handlePaste($data)
     {
-        $this->uploadedImage = $event->target->files[0]; // فایل انتخابی
-
-        // اعتبارسنجی فایل
-        $this->validate([
-            'uploadedImage' => 'image|max:2048', // فقط تصویر تا 2MB
-        ]);
-
-        // ذخیره فایل در storage/app/public/messages
-        $path = $this->uploadedImage->store('messages', 'public');
-
-        // ذخیره مسیر در جدول Messages (یا Answer)
-        Message::where('id', $messageId)->update([
-            'image_path' => $path
-        ]);
-
-        // پاک کردن فایل موقت
-        $this->uploadedImage = null;
-
-        // Optional: پیام موفقیت یا refresh کامپوننت
-        $this->dispatchBrowserEvent('imageUploaded', ['messageId' => $messageId]);
+        // $data['text'] => محتوای textarea
+        // $data['image'] => Base64 تصویر
+        dd($data);
     }
 
     public function submit()
     {
+
         $user = Auth::user();
 
         $lines = explode("\n", $this->test);
@@ -116,6 +108,7 @@ class Index extends Component
             return trim($line) !== '';
         });
 
+
         // اگه بعد از فیلتر چیزی نموند، کلاً ثبت نکن
         if (count($lines) === 0) {
             return;
@@ -124,10 +117,16 @@ class Index extends Component
         $code = time() . '-' . rand(100000, 999999);
 
         foreach ($lines as $line) {
+            if ($this->hasMoreThanThreePersianLetters($line)) {
+                $value = '1';
+            } else {
+                $value = '0';
+            }
             Message::create([
                 'user_id' => $user->id,
                 'code' => trim($line),
                 'active_group' => 1,
+                'question' => $value,
                 'group_id' => $code,
                 'chat_in_progress' => '2',
             ]);
@@ -157,50 +156,23 @@ class Index extends Component
             ]
         );
         $this->comments[$message_id] = null;
+        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
     }
 
 
     public function submit_answer($id)
     {
+        $user = Auth::user();
         $this->validate();
 
         $a = Answer::query()->where('message_id', $id)->get();
 
         if ($a->isEmpty()) {
             Answer::query()->create([
-                'user_id' => '1',
+                'user_id' => $user->id,
                 'message_id' => $id,
-                'price' => $this->prices[$id] ?? null,
-            ]);
-
-            Message::query()->where('id', $id)
-                ->update(['chat_in_progress' => '1','active_group' => '0']);
-
-            $this->prices = [];
-        } else {
-            Answer::query()->where('message_id', $id)->update([
                 'price' => $this->prices[$id] ?? null,
                 'respondent_by_code' => '',
-            ]);
-
-            Message::query()->where('id', $id)
-                ->update(['chat_in_progress' => '1','active_group' => '0']);
-
-            $this->prices = [];
-        }
-    }
-
-    public function submit_answer_on3($id)
-    {
-        $this->validate();
-
-        $a = Answer::query()->where('message_id', $id)->get();
-
-        if ($a->isEmpty()) {
-            Answer::query()->create([
-                'user_id' => '1',
-                'message_id' => $id,
-                'price' => $this->prices[$id] ?? null,
             ]);
 
             Message::query()->where('id', $id)
@@ -218,6 +190,40 @@ class Index extends Component
 
             $this->prices = [];
         }
+        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
+    }
+
+    public function submit_answer_on3($id)
+    {
+        $user = Auth::user();
+        $this->validate();
+
+        $a = Answer::query()->where('message_id', $id)->get();
+
+        if ($a->isEmpty()) {
+            Answer::query()->create([
+                'user_id' => $user->id,
+                'message_id' => $id,
+                'price' => $this->prices[$id] ?? null,
+                'respondent_by_code' => '0',
+            ]);
+
+            Message::query()->where('id', $id)
+                ->update(['chat_in_progress' => '1','active_group' => '0']);
+
+            $this->prices = [];
+        } else {
+            Answer::query()->where('message_id', $id)->update([
+                'price' => $this->prices[$id] ?? null,
+                'respondent_by_code' => '0',
+            ]);
+
+            Message::query()->where('id', $id)
+                ->update(['chat_in_progress' => '1','active_group' => '0']);
+
+            $this->prices = [];
+        }
+        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
     }
 
     public function toggleCode($code, $messageId)
@@ -271,6 +277,7 @@ class Index extends Component
         // پاک کردن انتخاب‌ها و کامنت
         $this->selectedCodes = [];
         $this->comments[$messageId] = null;
+        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
     }
 
     public function deleteGroup($group_id)
@@ -307,6 +314,7 @@ class Index extends Component
         if ($comment) {
             $this->comments[$messageId] = null;
         }
+        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
     }
 
 
@@ -351,6 +359,7 @@ class Index extends Component
 
         Message::query()->where('id', $id)
             ->update(['chat_in_progress' => '1', 'active_group' => '0']);
+        $this->dispatch('answer-submitted', message: "پاسخ کاربر $user->name ثبت شد! ");
     }
 
     public function code_answer_update($chat_code, $id)
