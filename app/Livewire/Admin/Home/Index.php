@@ -200,6 +200,7 @@ class Index extends Component
 
             $this->prices = [];
         } else {
+
             Answer::query()->where('message_id', $id)->update([
                 'price' => $this->prices[$id] ?? null,
                 'respondent_by_code' => '0',
